@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowMusic</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+</head>
+<body>
+    <header class="bg-dark text-white p-3">
+        <div class="container">
+            <h1>FlowMusic</h1>
+            <form action="{% url 'search' %}" method="get" class="d-flex">
+                <input class="form-control me-2" type="search" name="q" placeholder="Buscar canciones..." value="{{ query }}">
+                <button class="btn btn-outline-light" type="submit">Buscar</button>
+            </form>
+        </div>
+    </header>
+    <main class="container my-4">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-dark text-white p-3 fixed-bottom">
+        <div class="container">
+            <audio id="audio-player" controls class="w-100"></audio>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const audioPlayer = document.getElementById('audio-player');
+        function playSong(url) {
+            audioPlayer.src = url;
+            audioPlayer.play();
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const playButtons = document.querySelectorAll('.play-song');
+            playButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    playSong(url);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
