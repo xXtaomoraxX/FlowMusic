@@ -94,3 +94,17 @@ class LoginViewTest(TestCase):
         })
 
         self.assertEqual(response.status_code, 400)
+
+class LogoutViewTest(TestCase):
+    def test_logout_view(self):
+        response = self.client.get(reverse('logout'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
+
+    def test_logout_view_authenticated(self):
+        self.client.login(username='admin', password='Okayy123')
+        response = self.client.get(reverse('logout'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
