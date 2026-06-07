@@ -89,7 +89,6 @@
             }
 
             .error,
-            .password_mismatch,
             .password_invalid {
                 color: #f3727f;
 
@@ -110,21 +109,6 @@
         </style>
 
         <script>
-            function validatePassword() {
-                var password = document.getElementById("password").value;
-                var confirmPassword =
-                    document.getElementById("confirm_password").value;
-
-                const element = document.querySelector(".password_mismatch");
-                if (password !== confirmPassword) {
-                    element.innerText = "Passwords do not match";
-
-                    return;
-                }
-
-                element.innerText = "";
-            }
-
             function checkPasswordStrength() {
                 var password = document.getElementById("password").value;
                 const element = document.querySelector(".password_invalid");
@@ -143,11 +127,11 @@
         <div class="container">
             <div class="subject">
                 <h2>FlowMusic</h2>
-                <h1>Registrate para empezar a escuchar</h1>
+                <h1>Inicia sesión para empezar a escuchar</h1>
             </div>
 
-            <a href="{% url 'login' %}" class="muted-link"
-                >Ya tienes una cuenta? Inicia sesión aquí</a
+            <a href="{% url 'register' %}" class="muted-link"
+                >No tienes una cuenta? Regístrate aquí</a
             >
 
             <form method="post">
@@ -158,24 +142,11 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="name@domain.com"
-                        required
-                    />
-                </div>
-
-                <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <input
-                        onchange="validatePassword() || checkPasswordStrength()"
-                        onkeydown="
-                            validatePassword() || checkPasswordStrength()
-                        "
-                        onkeyup="validatePassword() || checkPasswordStrength()"
+                        onchange="checkPasswordStrength()"
+                        onkeydown="checkPasswordStrength()"
+                        onkeyup="checkPasswordStrength()"
                         type="password"
                         id="password"
                         name="password"
@@ -185,30 +156,13 @@
                     <p class="password_invalid"></p>
                 </div>
 
-                <div class="mb-3">
-                    <label for="confirm_password" class="form-label"
-                        >Confirm Password</label
-                    >
-                    <input
-                        onchange="validatePassword()"
-                        onkeydown="validatePassword()"
-                        onkeyup="validatePassword()"
-                        type="password"
-                        id="confirm_password"
-                        name="confirm_password"
-                        required
-                    />
-
-                    <p class="password_mismatch"></p>
-                </div>
-
                 {% if error %}
                 <div class="mb-3">
                     <p class="error">{{ error }}</p>
                 </div>
                 {% endif %}
 
-                <button type="submit">Registrarse ahora</button>
+                <button type="submit">Iniciar sesión</button>
             </form>
         </div>
     </body>

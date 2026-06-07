@@ -18,7 +18,7 @@ class RegisterViewTest(TestCase):
             'password': 'password123',
         })
 
-        self.assertRedirects(response, reverse('home'))
+        self.assertRedirects(response, reverse('login'))
         self.assertTrue(User.objects.filter(username='juan1234').exists())
 
     def test_create_user_password_too_short(self):
@@ -61,3 +61,36 @@ class RegisterViewTest(TestCase):
         })
 
         self.assertContains(response, 'All fields are required', status_code=400)
+
+
+class LoginViewTest(TestCase):
+    def test_login_view(self):
+        response = self.client.get(reverse('login'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
+
+    def test_login_view_signin(self):
+        response = self.client.post(reverse('register'), {
+            'username': 'pablo123',
+            'email': 'pablo123@example.com',
+            'password': 'Okayy123',
+        })
+
+        self.assertTrue(User.objects.filter(username='pablo123').exists())
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.post(reverse('login'), {
+            'username': 'pablo123',
+            'password': 'Okayy123',
+        })
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_login_view_signin_invalid(self):
+        response = self.client.post(reverse('login'), {
+            'username': 'notexisteduser',
+            'password': 'WrongPassword',
+        })
+
+        self.assertEqual(response.status_code, 400)
