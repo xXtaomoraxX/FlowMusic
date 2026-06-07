@@ -102,3 +102,10 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+
+def profile_view(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    return render(request, 'profile.html', status=200)
