@@ -1,9 +1,11 @@
+import re
+
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
 
 from django.contrib.auth.models import User
 
-from .models import Song
+from .models import Song, UserProfile
 
 
 def home(request):
@@ -60,6 +62,8 @@ def register_view(request):
         user = User.objects.create_user(username=username, email=email, password=password)
         user.save()
 
+        UserProfile.objects.create(user=user)
+
         return redirect('login')
 
     return render(request, 'register.html', status=200)
@@ -87,6 +91,9 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            if not UserProfile.objects.filter(user=user).exists():
+                UserProfile.objects.create(user=user)
+
             login(request, user)
             return redirect('home')
 
@@ -108,4 +115,24 @@ def profile_view(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    return render(request, 'profile.html', status=200)
+    profile = request.user.userprofile
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        username = request.POST.get('bio')
+        image = request.FILES.get('profile_picture')
+
+        if image:
+            profile.user_image = image
+
+        if name and name != profile.name:
+            profile.name = name
+
+        if username and username != request.user.username:
+            request.user.username = username
+
+        profile.save()
+
+        return redirect('profile')
+
+    return render(request, 'profile.html', {'profile': profile}, status=200)

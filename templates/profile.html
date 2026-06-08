@@ -28,10 +28,20 @@
 
 
         img:hover {
+            cursor: pointer;
             transform: scale(1.1);
             opacity: 0.7;
         }
     }
+}
+
+.custom-btn {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 @media (max-width: 660px) {
@@ -47,27 +57,31 @@
     }
 }
 
+.zoom-custom {
+    zoom: 1.1;
+}
+
 </style>
 {% endblock %}
 
 {% block content %}
 
 <h1 class="big">Perfil</h1>
-{%if user.name %}
-<p>Bienvenido, {{ user.name }}!</p>
+{%if profile.name %}
+<p style="font-weight: 500;">Bienvenido, <span class="fw-bold" style="color: var(--accent); !important;">{{ profile.name }}</span>!</p>
 {% else %}
-<p>Bienvenido, {{ user.username }}!</p>
+<p style="font-weight: 500;">Bienvenido, <span class="fw-bold" style="color: var(--accent); !important;">{{ user.username }}</span>!</p>
 {% endif %}
 
-<div>
-    <form method="post" class="d-flex flex-column align-items-center">
+<div class="zoom-custom">
+    <form method="post" class="d-flex flex-column align-items-center" enctype="multipart/form-data">
         {% csrf_token %}
 
         <div class="d-flex flex-row justify-content-between gap-5 responsive-form">
             <div>
                 <div>
                     <label for="name" class="mb-2">Nombre</label>
-                    <input class="form-control form-control-responsive px-4 py-2" type="text" id="name" name="name" value="{{ user.name }}" required>
+                    <input class="form-control form-control-responsive px-4 py-2" type="text" id="name" name="name" value="{{ profile.name }}" required>
                 </div>
 
                 <div class="mt-3">
@@ -91,19 +105,39 @@
                 const profilePictureInput = document.getElementById('profile_picture');
                 profilePictureInput.click();
               }
+
+              function imagePreview() {
+                const profilePictureInput = document.getElementById('profile_picture');
+                const profilePicture = profilePictureInput.files[0];
+                console.log(profilePicture);
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                  const img = document.querySelector('.profile-image img');
+                  img.src = e.target.result;
+                };
+
+                if (profilePicture) {
+                  reader.readAsDataURL(profilePicture);
+                }
+              }
             </script>
 
             <div class="my-auto profile-image">
                 <figure>
+                    {% if profile.user_image %}
+                    <img src="{{ profile.user_image.url }}" alt="Foto de perfil" onclick="loadProfilePicture()">
+                    {% else %}
                     <img src="{% static 'images/default.png' %}" alt="Foto de perfil" onclick="loadProfilePicture()">
+                    {% endif %}
                 </figure>
 
-                <input class="form-control" type="file" id="profile_picture" name="profile_picture" accept="image/*" hidden>
+                <input class="form-control" type="file" id="profile_picture" name="profile_picture" accept="image/*" onchange="imagePreview()" hidden>
             </div>
 
         </div>
 
-        <button type="submit">Guardar</button>
+        <button type="submit" class="btn btn-primary mt-3">Guardar</button>
     </form>
 
 
