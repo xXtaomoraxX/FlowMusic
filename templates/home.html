@@ -8,7 +8,10 @@
             <div class="card-body">
                 <h5 class="card-title">{{ song.title }}</h5>
                 <p class="card-text">{{ song.album.artist.name }} - {{ song.album.title }}</p>
-                <button class="btn btn-primary play-song" data-url="{{ song.audio_file.url }}">Reproducir</button>
+                <button class="btn btn-primary play-song"
+                    data-url="{{ song.audio_file.url }}"
+                    data-title="{{ song.title }}"
+                    data-artist="{{ song.album.artist.name }}">Reproducir</button>
             </div>
         </div>
     </div>

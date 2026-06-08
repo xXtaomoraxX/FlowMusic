@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
 :root {
     --bg-dark: #0f1221;
     --panel-dark: rgba(10, 13, 30, 0.92);
@@ -6,7 +8,10 @@
     --accent-soft: #b99cff;
     --text-light: #ece8ff;
     --text-muted: #a9a0c9;
-    --border: rgba(143, 103, 210, 0.2);
+    --border: rgba(130, 100, 255, 0.25);
+    --icon-color: rgba(167, 139, 250, 0.45);
+    --lcd-text: #a78bfa;
+    --lcd-glow: rgba(124, 92, 252, 0.35);;
 }
 
 body {
@@ -15,6 +20,8 @@ body {
     color: var(--text-light);
     min-height: 100vh;
     padding-bottom: 100px;
+
+    font-family: 'Share Tech Mono', monospace;
 }
 
 header {
@@ -31,7 +38,7 @@ header h1 {
 
 header .form-control {
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(143, 103, 210, 0.2);
+    border: 1px solid var(--border);
     color: var(--text-light);
 }
 
@@ -59,7 +66,7 @@ header .form-control:focus {
 }
 
 .btn-primary {
-    border-color: var(--accent);
+    border-color: var(--border);
     background: linear-gradient(135deg, #7f5cff 0%, #a373ff 100%);
     color: #fff;
 }
@@ -76,20 +83,8 @@ header .form-control:focus {
 }
 
 footer {
-    background: rgba(10, 12, 26, 0.98);
-    border-top: 1px solid rgba(143, 103, 210, 0.18);
-    box-shadow: 0 -6px 30px rgba(68, 43, 147, 0.35);
-}
-
-footer audio {
-    background: #111326;
-    border: 1px solid rgba(143, 103, 210, 0.28);
-    border-radius: 16px;
-    box-shadow: 0 0 24px rgba(141, 92, 255, 0.18);
-}
-
-footer audio::-webkit-media-controls-panel {
-    background: rgba(15, 17, 36, 0.95);
+    background: #0d1124;
+    border-top: 1px solid var(--border);
 }
 
 .play-song {
