@@ -1,6 +1,11 @@
 from django.test import TestCase
 from django.urls import reverse
+
 from django.contrib.auth.models import User
+from music.models import UserProfile
+
+
+from music.views import profile_view
 
 # Create your tests here.
 
@@ -109,3 +114,25 @@ class LogoutViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('login'))
+
+
+class UserProfileTest(TestCase):
+    def test_user_profile(self):
+        user = User.objects.create_user(
+            username="diego",
+            password="123456"
+        )
+
+        profile = UserProfile.objects.create(user=user)
+
+        self.assertEqual(User.objects.all()[0].userprofile, profile)
+
+    def test_user_profile_image(self):
+        user = User.objects.create_user(
+            username="pablo",
+            password="123456"
+        )
+
+        profile = UserProfile.objects.create(user=user)
+
+        self.assertIsNotNone(profile.user_image)
