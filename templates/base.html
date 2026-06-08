@@ -133,7 +133,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--icon-color);
+            color: var(--player-icon-color);
             font-size: 18px;
 
             flex-shrink: 0;
@@ -155,13 +155,13 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 200px;
-            color: var(--lcd-text);
-            text-shadow: 0 0 8px var(--lcd-glow);
+            color: var(--player-text);
+            text-shadow: 0 0 8px var(--player-glow);
         }
 
         .song-artist {
             font-size: 10px;
-            color: var(--icon-color);
+            color: var(--player-icon-color);
             letter-spacing: 1.5px;
             text-transform: uppercase;
         }
@@ -169,7 +169,7 @@
         .progress-bar {
             width: 100%;
             height: 3px;
-            background: rgba(100, 160, 255, 0.08);
+            background: var(--player-progress-bar-color);
             border-radius: 1000px;
 
             position: relative;
@@ -195,7 +195,7 @@
             height: 11px;
             background: #c4b5fd;
             border-radius: 50%;
-            box-shadow: 0 0 5px var(--lcd-glow);
+            box-shadow: 0 0 5px var(--player-glow);
             opacity: 0;
             transition: opacity .15s;
         }
@@ -206,7 +206,7 @@
 
         .time-lbl {
             font-size: 14px;
-            color: rgba(167, 139, 250, 0.45);
+            color: var(--player-ctrl-color);
             letter-spacing: 1px;
             white-space: nowrap;
             min-width: 34px;
@@ -216,7 +216,7 @@
         .player-ctrl {
             background: transparent;
             border: none;
-            color: rgba(167, 139, 250, 0.45);
+            color: var(--player-ctrl-color);
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -229,7 +229,7 @@
         }
 
         .player-ctrl:hover {
-            color: var(--lcd-text);
+            color: var(--player-text);
         }
 
         .player-ctrl-play {
