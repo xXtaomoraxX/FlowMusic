@@ -29,4 +29,6 @@ jobs:
       env:
           DJANGO_SETTINGS_MODULE: flowmusic.settings
       run: |
+        python manage.py makemigrations
+        python manage.py migrate
         python manage.py test --noinput
