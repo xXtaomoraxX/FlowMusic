@@ -178,7 +178,7 @@
         }
 
         .played {
-            width: 10%;
+            width: 0%;
             height: 100%;
             background: var(--accent);
             border-radius: 1000px;
@@ -251,9 +251,48 @@
             zoom: 1.1;
         }
 
+        .vol-track {
+            width: 10vw;
+            height: 5px;
+            background: var(--player-progress-bar-color);
+            border-radius: 1000px;
+
+            position: relative;
+            overflow: visible;
+        }
+
+        .vol-fill {
+            width: 10%;
+            height: 100%;
+            background: var(--accent);
+            border-radius: 1000px;
+
+            position: relative;
+        }
+
+        .vol-fill::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: -3px;
+            width: 11px;
+            height: 11px;
+            background: #c4b5fd;
+            border-radius: 1000px;
+            box-shadow: 0 0 5px var(--player-glow);
+            opacity: 0;
+            transition: opacity .15s;
+        }
+
+        .vol-track:hover .vol-fill::after {
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body>
+
+    <audio id="audio-player" src=""></audio>
     <header class="py-2 px-4 d-flex justify-content-between align-items-center">
         <div class="d-flex justify-content-between w-75">
             <h2 class="m-0"><a href="{% url 'home' %}" style="color: var(--accent); text-decoration: none;">FlowMusic</a></h2>
@@ -328,7 +367,7 @@
                         <button class="player-ctrl">
                             <i class="bi bi-skip-end-fill"></i>
                         </button>
-                        <button class="player-ctrl">
+                        <button class="player-ctrl player-ctrl-repeat">
                             <i class="bi bi-repeat"></i>
                         </button>
                     </div>
@@ -339,9 +378,20 @@
                             <div class="played"></div>
                             <div class="hovered"></div>
                         </div>
-                        <span class="time-lbl">-:--</span>
+                        <span class="time-lbl time-lbl-max">-:--</span>
                     </div>
 
+                </div>
+
+                <div class="col-3 d-flex justify-content-start align-items-center gap-2">
+                    <div class="d-flex align-items-center" style="zoom:1.2;">
+                        <button class="player-ctrl">
+                            <i class="bi bi-volume-up"></i>
+                        </button>
+                        <div class="vol-track">
+                            <div class="vol-fill"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -349,14 +399,116 @@
 
     <script>
         const audioPlayer = document.getElementById('audio-player');
-        function playSong(url) {
-            //audioPlayer.src = url;
-            //audioPlayer.play();
+        const played = document.querySelector('.played');
+
+        const timeLblMax = document.querySelector('.time-lbl-max');
+        const timeLbl = document.querySelector('.time-lbl');
+
+        const playButton = document.querySelector('.player-ctrl-play');
+        const progressBar = document.querySelector('.progress-bar');
+
+        const repeatButton = document.querySelector('.player-ctrl-repeat');
+
+        let isPlaying = false;
+        let shouldRepeat = false;
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+
+            return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
         }
+
         function updateSongInfo(title, artist) {
             document.querySelector('.song-title').textContent = title;
             document.querySelector('.song-artist').textContent = artist;
         }
+
+        function changeState() {
+            if (isPlaying) {
+                playButton.children[0].classList.remove('bi-play-fill');
+                playButton.children[0].classList.add('bi-pause-fill');
+            } else {
+                playButton.children[0].classList.remove('bi-pause-fill');
+                playButton.children[0].classList.add('bi-play-fill');
+            }
+        }
+
+        function playSong(url) {
+            audioPlayer.src = url;
+            audioPlayer.play();
+
+            isPlaying = true;
+            changeState();
+        }
+
+        repeatButton.addEventListener('click', function() {
+            shouldRepeat = !shouldRepeat;
+
+            repeatButton.style.color = shouldRepeat ? "var(--player-text)" : "var(--player-ctrl-color)";
+
+        });
+
+        playButton.addEventListener('click', function() {
+            if (Number.isNaN(audioPlayer.duration)) return;
+
+            if (!audioPlayer.paused) {
+                audioPlayer.pause();
+                isPlaying = false;
+                changeState();
+            } else {
+                audioPlayer.play();
+                isPlaying = true;
+                changeState();
+            }
+        });
+
+        audioPlayer.addEventListener("loadedmetadata", () => {
+            timeLblMax.textContent = formatTime(audioPlayer.duration);
+        });
+
+        audioPlayer.addEventListener("timeupdate", (e) => {
+            if (audioPlayer.currentTime === audioPlayer.duration) {
+                audioPlayer.pause();
+
+                if (shouldRepeat) {
+                    audioPlayer.currentTime = 0;
+                    audioPlayer.play();
+                } else {
+                    isPlaying = false;
+                    changeState();
+                }
+            }
+
+            const percentage =
+                (audioPlayer.currentTime / audioPlayer.duration) * 100;
+
+            played.style.width = `${percentage}%`;
+            timeLbl.textContent = formatTime(audioPlayer.currentTime);
+            timeLblMax.textContent = formatTime(audioPlayer.duration - audioPlayer.currentTime);
+
+        });
+
+        progressBar.addEventListener("click", (e) => {
+            if (Number.isNaN(audioPlayer.duration)) return;
+
+            const rect = progressBar.getBoundingClientRect();
+
+            const percentage =
+                (e.clientX - rect.left) / rect.width;
+
+            audioPlayer.currentTime =
+                percentage * audioPlayer.duration;
+
+            if (audioPlayer.paused) {
+                const percentage =
+                    (audioPlayer.currentTime / audioPlayer.duration) * 100;
+
+                played.style.width = `${percentage}%`;
+                timeLbl.textContent = formatTime(audioPlayer.currentTime);
+                timeLblMax.textContent = formatTime(audioPlayer.duration - audioPlayer.currentTime);
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             const playButtons = document.querySelectorAll('.play-song');

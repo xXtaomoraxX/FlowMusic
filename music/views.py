@@ -1,10 +1,12 @@
-import re
+import os
 
+
+from django.conf import settings
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
+from django.http import FileResponse, HttpResponse, Http404
 
 from django.contrib.auth.models import User
-
 from .models import Song, UserProfile
 
 
@@ -136,3 +138,35 @@ def profile_view(request):
         return redirect('profile')
 
     return render(request, 'profile.html', {'profile': profile}, status=200)
+
+
+def serve_song(request, song_id):
+    song = Song.objects.get(pk=song_id)
+    file_path = os.path.join(settings.MEDIA_ROOT, song.audio_file.name)
+
+    if not os.path.exists(file_path):
+        raise Http404
+
+    response = FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
+    response['Accept-Ranges'] = 'bytes'
+
+    # Manejar Range request
+    range_header = request.META.get('HTTP_RANGE')
+    if range_header:
+        file_size = os.path.getsize(file_path)
+        range_val = range_header.strip().replace('bytes=', '')
+        start, end = range_val.split('-')
+        start = int(start)
+        end = int(end) if end else file_size - 1
+
+        f = open(file_path, 'rb')
+        f.seek(start)
+        data = f.read(end - start + 1)
+        f.close()
+
+        response = HttpResponse(data, status=206, content_type='audio/mpeg')
+        response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
+        response['Accept-Ranges'] = 'bytes'
+        response['Content-Length'] = len(data)
+
+    return response
