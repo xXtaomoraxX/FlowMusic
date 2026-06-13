@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
-from django.http import FileResponse, HttpResponse, Http404
+from django.http import FileResponse, HttpResponse, Http404, JsonResponse
 
 from django.contrib.auth.models import User
 from .models import Song, UserProfile
@@ -141,7 +141,14 @@ def profile_view(request):
 
 
 def serve_song(request, song_id):
-    song = Song.objects.get(pk=song_id)
+    if not request.user.is_authenticated:
+        raise Http404
+
+    try:
+        song = Song.objects.get(pk=song_id)
+    except RuntimeError:
+        raise Http404
+
     file_path = os.path.join(settings.MEDIA_ROOT, song.audio_file.name)
 
     if not os.path.exists(file_path):
