@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
 :root {
     --bg-dark: #0f1221;
     --panel-dark: rgba(10, 13, 30, 0.92);
@@ -6,7 +8,27 @@
     --accent-soft: #b99cff;
     --text-light: #ece8ff;
     --text-muted: #a9a0c9;
-    --border: rgba(143, 103, 210, 0.2);
+    --border: rgba(130, 100, 255, 0.25);
+
+    --player-icon-color: rgba(167, 139, 250, 0.45);
+    --player-text: #a78bfa;
+    --player-glow: rgba(124, 92, 252, 0.35);
+    --player-ctrl-color: rgba(167, 139, 250, 0.45);
+    --player-progress-bar-color: rgba(100, 160, 255, 0.08);
+
+    --header-bg: #0a0a1f;
+    --header-border: #1e1e3a;
+
+    --searcher-bg: rgba(255, 255, 255, 0.08);
+    --searcher-bg-light: rgba(255, 255, 255, 0.1);
+    --searcher-border: rgba(141, 92, 255, 0.55);
+    --searcher-border-darker: rgba(141, 92, 255, 0.2);
+
+    --card-bg: rgba(18, 18, 40, 0.96);
+    --card-border: rgba(143, 103, 210, 0.15);
+    --card-border-light: rgba(141, 92, 255, 0.35);
+
+    --footer-bg: #0d1124;
 }
 
 body {
@@ -15,12 +37,14 @@ body {
     color: var(--text-light);
     min-height: 100vh;
     padding-bottom: 100px;
+
+    font-family: 'Share Tech Mono', monospace;
 }
 
 header {
-    background: #0a0a1f;
+    background: var(--header-bg);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid #1e1e3a;
+    border-bottom: 1px solid var(--header-border);
 }
 
 header h1 {
@@ -30,27 +54,27 @@ header h1 {
 }
 
 header .form-control {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(143, 103, 210, 0.2);
+    background: var(--searcher-bg);
+    border: 1px solid var(--border);
     color: var(--text-light);
 }
 
 header .form-control:focus {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(141, 92, 255, 0.55);
-    box-shadow: 0 0 0 0.15rem rgba(141, 92, 255, 0.2);
+    background: var(--searcher-bg-light);
+    border-color: var(--searcher-border);
+    box-shadow: 0 0 0 0.15rem var(--searcher-border-darker);
 }
 
 .card {
-    background: rgba(18, 18, 40, 0.96);
-    border: 1px solid rgba(143, 103, 210, 0.15);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .card:hover {
     transform: translateY(-6px);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
-    border-color: rgba(141, 92, 255, 0.35);
+    border-color: var(--card-border-light);
 }
 
 .card-title,
@@ -59,7 +83,7 @@ header .form-control:focus {
 }
 
 .btn-primary {
-    border-color: var(--accent);
+    border-color: var(--border);
     background: linear-gradient(135deg, #7f5cff 0%, #a373ff 100%);
     color: #fff;
 }
@@ -76,20 +100,8 @@ header .form-control:focus {
 }
 
 footer {
-    background: rgba(10, 12, 26, 0.98);
-    border-top: 1px solid rgba(143, 103, 210, 0.18);
-    box-shadow: 0 -6px 30px rgba(68, 43, 147, 0.35);
-}
-
-footer audio {
-    background: #111326;
-    border: 1px solid rgba(143, 103, 210, 0.28);
-    border-radius: 16px;
-    box-shadow: 0 0 24px rgba(141, 92, 255, 0.18);
-}
-
-footer audio::-webkit-media-controls-panel {
-    background: rgba(15, 17, 36, 0.95);
+    background: var(--footer-bg);
+    border-top: 1px solid var(--border);
 }
 
 .play-song {

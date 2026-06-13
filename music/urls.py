@@ -8,4 +8,6 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('profile/', views.profile_view, name='profile'),
     path('logout/', views.logout_view, name='logout'),
+
+    path('song/<int:song_id>/', views.serve_song, name='serve_song')
 ]
