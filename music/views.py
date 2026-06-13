@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
-from django.http import FileResponse, HttpResponse, Http404, JsonResponse
+from django.http import FileResponse, HttpResponse, Http404
 
 from django.contrib.auth.models import User
 from .models import Song, UserProfile
