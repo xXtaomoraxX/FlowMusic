@@ -262,7 +262,7 @@
         }
 
         .vol-fill {
-            width: 10%;
+            width: 50%;
             height: 100%;
             background: var(--accent);
             border-radius: 1000px;
@@ -355,16 +355,16 @@
 
                 <div class="col-6 d-flex flex-column align-items-center gap-2">
                     <div class="d-flex align-items-center gap-1 player-main-control">
-                        <button class="player-ctrl">
+                        <button class="player-ctrl player-ctrl-shuffle">
                             <i class="bi bi-shuffle"></i>
                         </button>
-                        <button class="player-ctrl">
+                        <button class="player-ctrl player-ctrl-prev">
                             <i class="bi bi-skip-start-fill"></i>
                         </button>
                         <button class="player-ctrl player-ctrl-play rounded-circle">
                             <i class="bi bi-play-fill"></i>
                         </button>
-                        <button class="player-ctrl">
+                        <button class="player-ctrl player-ctrl-next">
                             <i class="bi bi-skip-end-fill"></i>
                         </button>
                         <button class="player-ctrl player-ctrl-repeat">
@@ -384,13 +384,14 @@
                 </div>
 
                 <div class="col-3 d-flex justify-content-start align-items-center gap-2">
-                    <div class="d-flex align-items-center" style="zoom:1.2;">
+                    <div class="d-flex align-items-center gap-1" style="zoom:1.2;">
                         <button class="player-ctrl">
                             <i class="bi bi-volume-up"></i>
                         </button>
                         <div class="vol-track">
                             <div class="vol-fill"></div>
                         </div>
+                        <span class="time-lbl volume-lbl">50%</span>
                     </div>
                 </div>
             </div>
@@ -407,10 +408,73 @@
         const playButton = document.querySelector('.player-ctrl-play');
         const progressBar = document.querySelector('.progress-bar');
 
+        const volumeFill = document.querySelector('.vol-fill');
+        const volumeBar = document.querySelector('.vol-track');
+        const volumeLbl = document.querySelector('.volume-lbl');
+
         const repeatButton = document.querySelector('.player-ctrl-repeat');
+        const nextButton = document.querySelector('.player-ctrl-next');
+        const prevButton = document.querySelector('.player-ctrl-prev');
+        const shuffleButton = document.querySelector('.player-ctrl-shuffle');
 
         let isPlaying = false;
         let shouldRepeat = false;
+        let isDragging = false;
+        let shouldShuffle = false;
+
+        const songLinkedList = new SongLinkedList();
+        let currentNode = null;
+
+        audioPlayer.volume = 0.5;
+
+        function Node(song) {
+            this.songId = song.id;
+            this.song = song;
+            this.next = null;
+            this.prev = null;
+        }
+
+        function SongLinkedList() {
+            this.head = null;
+            this.tail = null;
+
+            this.size = 0;
+        }
+
+        SongLinkedList.prototype.add = function(song) {
+            const node = new Node(song);
+            if (!this.head) {
+                this.head = node;
+                this.tail = node;
+            } else {
+                this.tail.next = node;
+                node.prev = this.tail;
+                this.tail = node;
+            }
+            this.size++;
+            return node;
+        };
+
+        SongLinkedList.prototype.findById = function(songId) {
+            let current = this.head;
+            while (current) {
+                if (current.songId === songId) {
+                    return current;
+                }
+                current = current.next;
+            }
+            return null;
+        };
+
+        SongLinkedList.prototype.randomNode = function() {
+            if (!this.head) return null;
+            const randomIndex = Math.floor(Math.random() * this.size);
+            let current = this.head;
+            for (let i = 0; i < randomIndex; i++) {
+                current = current.next;
+            }
+            return current;
+        };
 
         function formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
@@ -436,6 +500,8 @@
 
         function playSong(url) {
             audioPlayer.src = url;
+            audioPlayer.currentTime = 0;
+
             audioPlayer.play();
 
             isPlaying = true;
@@ -444,9 +510,12 @@
 
         repeatButton.addEventListener('click', function() {
             shouldRepeat = !shouldRepeat;
-
             repeatButton.style.color = shouldRepeat ? "var(--player-text)" : "var(--player-ctrl-color)";
+        });
 
+        shuffleButton.addEventListener('click', function() {
+            shouldShuffle = !shouldShuffle;
+            shuffleButton.style.color = shouldShuffle ? "var(--player-text)" : "var(--player-ctrl-color)";
         });
 
         playButton.addEventListener('click', function() {
@@ -463,6 +532,31 @@
             }
         });
 
+        prevButton.addEventListener('click', function() {
+            if (!currentNode) return;
+            if (currentNode.prev) {
+                currentNode = currentNode.prev;
+            } else {
+                currentNode = songLinkedList.tail;
+            }
+
+            playSong(currentNode.song.url);
+            updateSongInfo(currentNode.song.title, currentNode.song.artist);
+        });
+
+        nextButton.addEventListener('click', function() {
+            if (!currentNode) return;
+
+            if (currentNode.next) {
+                currentNode = currentNode.next;
+            } else {
+                currentNode = songLinkedList.head;
+            }
+
+            playSong(currentNode.song.url);
+            updateSongInfo(currentNode.song.title, currentNode.song.artist);
+        });
+
         audioPlayer.addEventListener("loadedmetadata", () => {
             timeLblMax.textContent = formatTime(audioPlayer.duration);
         });
@@ -474,6 +568,10 @@
                 if (shouldRepeat) {
                     audioPlayer.currentTime = 0;
                     audioPlayer.play();
+                } else if (shouldShuffle) {
+                    currentNode = songLinkedList.randomNode();
+                    updateSongInfo(currentNode.song.title, currentNode.song.artist);
+                    playSong(currentNode.song.url);
                 } else {
                     isPlaying = false;
                     changeState();
@@ -510,16 +608,65 @@
             }
         });
 
+        volumeBar.addEventListener("click", (e) => {
+            if (Number.isNaN(audioPlayer.volume)) return;
+
+            const rect = volumeBar.getBoundingClientRect();
+
+            const percentage =
+                (e.clientX - rect.left) / rect.width;
+
+            audioPlayer.volume = percentage;
+            volumeFill.style.width = `${percentage * 100}%`;
+        });
+
+        volumeBar.addEventListener("mousedown", () => {
+            isDragging = true;
+        });
+
+        volumeBar.addEventListener("mousemove", (e) => {
+            if (!isDragging) return;
+
+            const rect = volumeBar.getBoundingClientRect();
+
+            let percentage =
+                (e.clientX - rect.left) / rect.width;
+
+            percentage = Math.min(1, Math.max(0, percentage));
+
+            audioPlayer.volume = percentage;
+
+            volumeFill.style.width = `${percentage * 100}%`;
+            volumeLbl.textContent = `${Math.round(percentage * 100)}%`;
+        });
+
+        volumeBar.addEventListener("mouseup", () => {
+            isDragging = false;
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const playButtons = document.querySelectorAll('.play-song');
             playButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const url = this.getAttribute('data-url');
-                    const title = this.getAttribute('data-title');
-                    const artist = this.getAttribute('data-artist');
+                const songTitle = button.getAttribute('data-title');
+                const songArtist = button.getAttribute('data-artist');
+                const songUrl = button.getAttribute('data-url');
+                const songId = button.getAttribute('data-id');
 
-                    playSong(url);
-                    updateSongInfo(title, artist);
+                songLinkedList.add({
+                    id: songId,
+                    title: songTitle,
+                    artist: songArtist,
+                    url: songUrl
+                });
+
+                button.addEventListener('click', function() {
+                    const songId = button.getAttribute('data-id');
+                    const node = songLinkedList.findById(songId);
+
+                    currentNode = node;
+
+                    playSong(node.song.url);
+                    updateSongInfo(node.song.title, node.song.artist);
                 });
             });
         });
